@@ -51,7 +51,7 @@ const AboutSection = () => {
            </p>
           
         </div>
-         <div className="about-content" style={{width:'100%',width:'1200px',margin:'auto'}}>
+         {/* <div className="about-content" style={{width:'100%',width:'1200px',margin:'auto'}}>
         
           <h2 className="about-title">
            The Allure of Natai
@@ -63,7 +63,7 @@ const AboutSection = () => {
           With its tranquil environments juxtaposed against robust property development, Natai has seamlessly intertwined tranquility with opulent living, emerging as a sought-after locale for investors and tranquility-seekers alike. AP-Natai, a pillar in this serene environment, plays a pivotal role in not only elevating the property market but also embedding sustainability and community into the luxurious lifestyle of Natai.
            </p>
           
-        </div>
+        </div> */}
       </div>
       
     </section>
