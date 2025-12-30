@@ -8,7 +8,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import axios from 'axios';
 
 export default function Testimonials() {
-  const [testimonials, setTestimonials] = useState([]); 
+  const [testimonials, setTestimonials] = useState([]); // ✅ start with an empty array
 
   useEffect(() => {
     const fetchTestimonials = async () => {
@@ -52,15 +52,11 @@ export default function Testimonials() {
   return (
     <div className="testimonials-wrapper">
       <div className="fancy-mainheading">
-        <h2 style={{color:'#000 !important'}}>Happy Clients <span>Say About Us</span></h2>
+        <h2>Happy Clients <span>Say About Us</span></h2>
       </div>
 
       {testimonials.length > 0 ? (
-<<<<<<< HEAD
         <Slider {...settings} className="testimonialscustom" style={{maxWidth:'1200px',margin:'auto'}}>
-=======
-        <Slider {...settings}>
->>>>>>> 0eda57c3fd61776d3bc7f9df1ae8d836fd0b5937
           {testimonials.map((item, index) => (
             <div className="testimonial-card-old" key={index}>
               <div className="imagearea">
@@ -86,19 +82,11 @@ export default function Testimonials() {
                   className="testimonial-text" style={{color:'#000',lineHeight:'20px'}}
                   dangerouslySetInnerHTML={{ __html: item.review || '' }}
                 />
-<<<<<<< HEAD
-                <div className="testimonial-footer" style={{display: 'flex',justifyContent: 'space-between'}}>
-                  <div className="headingpara">
-                  <h3 style={{color:'#000'}}>{item.name || 'Anonymous'}</h3>
-                  <p style={{color:'#000',lineHeight:'20px'}}>{item.position || 'Happy Customer'}</p>
-                  </div>
-                  <div className="quote-icon" style={{position:'relative',bottom:'0px'}}>❞</div>
-=======
-                <div className="testimonial-footer">
-                  <h3 style={{color:'#000'}}>{item.name || 'Anonymous'}</h3>
-                  <p style={{color:'#000',lineHeight:'20px'}}>{item.position || 'Happy Customer'}</p>
-                  <div className="quote-icon">❞</div>
->>>>>>> 0eda57c3fd61776d3bc7f9df1ae8d836fd0b5937
+                <div className="testimonial-footer" style={{display:'flex',justifyContent: 'space-between'}}>
+                  <div className="testidivcustom">
+                  <h3>{item.name || 'Anonymous'}</h3>
+                  <p style={{color:'#000',lineHeight:'20px'}}>{item.position || 'Happy Customer'}</p></div>
+                  <div className="quote-icon" style={{position: 'relative',bottom:'0px'}}>❞</div>
                 </div>
               </div>
             </div>

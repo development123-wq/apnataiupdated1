@@ -19,15 +19,14 @@
   position: relative;
   min-height: 380px;
 }
-<<<<<<< HEAD
+
 @media(min-width:990px){
 .testimonialscustom  .slick-slide{
   width: 375px !important;
 }
 }
-=======
 
->>>>>>> 0eda57c3fd61776d3bc7f9df1ae8d836fd0b5937
+
 .testimonial-card-content{
   border:1px solid #00E2EE;
   padding-top:70px;
