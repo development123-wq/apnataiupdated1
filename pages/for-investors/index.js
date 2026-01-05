@@ -8,7 +8,7 @@ import InnerBanner from '../../components/InnerBanner';
 import aboutimg from '../../public/images/images/viva.webp';
 import '../../public/css/forguests.css';
 import ForRentals from '../../components/ForInvesters/ForGuests';
-import Card from "../../components/PropertyCardGuests";
+import Card from "../../components/PropertyCardInvestors";
 
 const ForRental = () => {
   return (

@@ -1,50 +1,97 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import aboutimg from "../../public/images/images/viva2.jpg";
 import "../../public/css/businessevents.css";
 
+const API_URL = "https://techzenondev.com/apnatai/api/forowner/1/edit";
+const IMAGE_BASE = "https://techzenondev.com/apnatai/storage/app/public/";
+
+// inject CSS inside HTML string so it overrides inline margins
+const withInjectedStyles = (html) => {
+  const css = `
+    <style>
+      .events-right .event-card h3{
+        margin-top: 20px !important;
+        margin-bottom: 0 !important;
+      }
+    </style>
+  `;
+  return `${css}${html || ""}`;
+};
+
+const Html = ({ className, html }) => {
+  if (!html) return null;
+  const cleaned = String(html).trim();
+  if (!cleaned || cleaned === "<p></p>" || cleaned === ",") return null;
+
+  return (
+    <div
+      className={className}
+      dangerouslySetInnerHTML={{ __html: withInjectedStyles(cleaned) }}
+    />
+  );
+};
+
 const BusinessEvents = () => {
+  const [page, setPage] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const run = async () => {
+      try {
+        setLoading(true);
+
+        const res = await fetch(API_URL, {
+          method: "GET",
+          cache: "no-store",
+          headers: { Accept: "application/json" },
+        });
+
+        if (!res.ok) {
+          setPage(null);
+          return;
+        }
+
+        const json = await res.json();
+        setPage(json?.data || null);
+      } catch (e) {
+        setPage(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    run();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+  if (!page) return <p>No data</p>;
+
+  const img = page.section12_image ? `${IMAGE_BASE}${page.section12_image}` : null;
+  const btnText = page.section12_button_text || "Get A Free Consultation";
+  const btnLink = page.section12_button_link || "#";
+
   return (
     <section className="events-section">
       <div className="events-header">
         <h1>
-          List Rental Property in Natai,{" "}
-          <span className="highlight"> Phang-nga</span> 
+          List Rental Property in Natai, <span className="highlight"> Phang-nga</span>
         </h1>
-        <p className="description-custom">
-        Listing your rental property in Natai, Phang-nga with AP Natai ensures it gets the spotlight it deserves. We amplify its appeal, ensuring it’s a top choice for potential renters.
-        </p>
       </div>
 
       <div className="events-body">
-        {/* Left image */}
-        <div className="events-image">
-          <Image src={aboutimg} alt="Business meeting" width={600} height={400} /><br/><br/>
-           <button className="learn-btn">Get A Free Consultation</button>
+        <div className="events-image" style={{paddingTop:'20px'}}>
+          {img ? <Image src={img} alt="Section 12" width={600} height={400} /> : null}
+          <br />
+          <br />
+          <a className="learn-btn" href={btnLink}>
+            {btnText}
+          </a>
         </div>
 
-        {/* Right content */}
         <div className="events-right">
-          <div className="event-card">
-            <h3>Your Seaside Sanctuary with AP Natai</h3>
-            <p>
-              If renting a seafront villa in Natai, Phang-nga is on your mind, look no further than AP Natai. Our selection of luxury rental properties ensures that you find a haven that mirrors your dream seaside sanctuary.
-            </p>
-          </div>
-
-          <div className="event-card">
-            <h3>A Rental Experience Like No Other</h3>
-            <p>
-              With AP Natai, renting a seafront villa is an experience in itself. We go beyond just offering properties; we offer homes that resonate with your vision of beachside luxury, ensuring that every moment spent is a memory cherished.
-            </p>
-          </div>
-
-          <div className="event-card">
-            <h3>Your Trusted Partner in Natai Beachfront Rentals</h3>
-            <p>
-              Having been established in 2005, AP Natai stands as a beacon of trust when it comes to seafront villa rentals in Natai, Phang-nga. Our legacy combined with our unparalleled local insights makes us the first choice for discerning renters.
-            </p>
-          </div>
+          <Html html={page.section12_description} />
         </div>
       </div>
     </section>
