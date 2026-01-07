@@ -11,24 +11,44 @@ const Banner = () => {
   const [banners, setBanners] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Dropdown Data
+  // Dropdown Data (used in both forms)
   const [propertyTypes, setPropertyTypes] = useState([]);
   const [locations, setLocations] = useState([]);
 
-  // Real Estate Form States (ID values)
-  const [type, setType] = useState(""); 
-  const [locationId, setLocationId] = useState("");
-  const [landSize, setLandSize] = useState("1200");
-  const [budget, setBudget] = useState("156000-2900000");
+  // ---------------------------
+  // For Sale form states
+  // ---------------------------
+  const [type, setType] = useState('');
+  const [locationId, setLocationId] = useState('');
+  const [landSize, setLandSize] = useState('');        // now dynamic
+  const [budget, setBudget] = useState('');            // now dynamic
+
+  // ✅ For Sale API lists
+  const [saleBudgets, setSaleBudgets] = useState([]);  // [{min,max}, ...]
+  const [landSizes, setLandSizes] = useState([]);      // [76576, 76777, ...]
+
+  // ---------------------------
+  // For Rent budgets (API)
+  // ---------------------------
+  const [rentBudgets, setRentBudgets] = useState([]);
+  const [rentBudget, setRentBudget] = useState(''); // "17500-18500"
+
+  // ---------------------------
+  // For Rent form states (query params)
+  // ---------------------------
+  const [rentType, setRentType] = useState('');
+  const [checkin, setCheckin] = useState('2025-09-15');
+  const [checkout, setCheckout] = useState(''); // empty => URL me "&checkout"
+  const [rentGuests, setRentGuests] = useState('6');
 
   // ------------------------------------------------------------------
-  // 🔥 FETCH PROPERTY TYPES
+  // FETCH PROPERTY TYPES
   // ------------------------------------------------------------------
   useEffect(() => {
     const fetchTypes = async () => {
       try {
         const res = await axios.get(
-          "https://techzenondev.com/apnatai/api/property-types?page=1"
+          'https://techzenondev.com/apnatai/api/property-types?page=1'
         );
 
         const types = res?.data?.data?.data;
@@ -36,12 +56,14 @@ const Banner = () => {
         if (Array.isArray(types)) {
           setPropertyTypes(types);
 
-          // Default property type
-          if (types.length > 0) setType(types[0].id.toString());
+          // defaults
+          if (types.length > 0) {
+            setType(types[0].id.toString());
+            setRentType(types[0].id.toString());
+          }
         }
-
       } catch (err) {
-        console.error("Error fetching property types:", err);
+        console.error('Error fetching property types:', err);
       }
     };
 
@@ -49,26 +71,23 @@ const Banner = () => {
   }, []);
 
   // ------------------------------------------------------------------
-  // 🔥 FETCH LOCATIONS
+  // FETCH LOCATIONS
   // ------------------------------------------------------------------
   useEffect(() => {
     const fetchLocations = async () => {
       try {
         const res = await axios.get(
-          "https://techzenondev.com/apnatai/api/locations?page=1"
+          'https://techzenondev.com/apnatai/api/locations?page=1'
         );
 
         const locs = res?.data?.data?.data;
 
         if (Array.isArray(locs)) {
           setLocations(locs);
-
-          // Default location
           if (locs.length > 0) setLocationId(locs[0].id.toString());
         }
-
       } catch (err) {
-        console.error("Error fetching locations:", err);
+        console.error('Error fetching locations:', err);
       }
     };
 
@@ -76,7 +95,7 @@ const Banner = () => {
   }, []);
 
   // ------------------------------------------------------------------
-  // 🔥 FETCH BANNERS
+  // FETCH BANNERS
   // ------------------------------------------------------------------
   useEffect(() => {
     const fetchBanners = async () => {
@@ -92,6 +111,104 @@ const Banner = () => {
       }
     };
     fetchBanners();
+  }, []);
+
+  // ------------------------------------------------------------------
+  // FETCH RENT BUDGETS (For Rent)
+  // ------------------------------------------------------------------
+  useEffect(() => {
+    const fetchRentBudgets = async () => {
+      try {
+        const res = await axios.get(
+          'https://techzenondev.com/apnatai/api/for-rent-budget/1/edit'
+        );
+
+        const budgetsArr = res?.data?.data?.budgets;
+
+        if (Array.isArray(budgetsArr)) {
+          setRentBudgets(budgetsArr);
+
+          if (budgetsArr.length > 0) {
+            setRentBudget(`${budgetsArr[0].min}-${budgetsArr[0].max}`);
+          }
+        } else {
+          setRentBudgets([]);
+          setRentBudget('');
+        }
+      } catch (err) {
+        console.error('Error fetching rent budgets:', err);
+        setRentBudgets([]);
+        setRentBudget('');
+      }
+    };
+
+    fetchRentBudgets();
+  }, []);
+
+  // ------------------------------------------------------------------
+  // ✅ FETCH SALE BUDGETS (For Sale)
+  // ------------------------------------------------------------------
+  useEffect(() => {
+    const fetchSaleBudgets = async () => {
+      try {
+        const res = await axios.get(
+          'https://techzenondev.com/apnatai/api/for-sale-budget/1/edit'
+        );
+
+        const budgetsArr = res?.data?.data?.budgets;
+
+        if (Array.isArray(budgetsArr)) {
+          setSaleBudgets(budgetsArr);
+
+          // default select first
+          if (budgetsArr.length > 0) {
+            setBudget(`${budgetsArr[0].min}-${budgetsArr[0].max}`);
+          }
+        } else {
+          setSaleBudgets([]);
+          setBudget('');
+        }
+      } catch (err) {
+        console.error('Error fetching sale budgets:', err);
+        setSaleBudgets([]);
+        setBudget('');
+      }
+    };
+
+    fetchSaleBudgets();
+  }, []);
+
+  // ------------------------------------------------------------------
+  // ✅ FETCH LAND SIZES (For Sale)
+  // ------------------------------------------------------------------
+  useEffect(() => {
+    const fetchLandSizes = async () => {
+      try {
+        const res = await axios.get(
+          'https://techzenondev.com/apnatai/api/land-size/1/edit'
+        );
+
+        const sizesArr = res?.data?.data?.sizes; // you shared: data.sizes [web:71]
+
+        if (Array.isArray(sizesArr)) {
+          setLandSizes(sizesArr);
+
+          // default select first
+          if (sizesArr.length > 0) {
+            setLandSize(String(sizesArr[0]));
+          }
+        } else {
+          setLandSizes([]);
+          setLandSize('');
+        }
+      } catch (err) {
+        console.error('Error fetching land sizes:', err);
+        setLandSizes([]);
+        setLandSize('');
+      }
+    };
+
+    fetchLandSizes();
   }, []);
 
   // Auto slide
@@ -125,7 +242,23 @@ const Banner = () => {
   const { small, large } = splitTitle(currentBanner.title);
 
   // ------------------------------------------------------------------
-  // 🔥 HANDLE REAL ESTATE SEARCH
+  // HANDLE RENT SEARCH -> exact query format
+  // ------------------------------------------------------------------
+  const handleRentSearch = (e) => {
+    e.preventDefault();
+
+    const qs =
+      `type=${encodeURIComponent(rentType)}` +
+      `&checkin=${encodeURIComponent(checkin)}` +
+      (checkout ? `&checkout=${encodeURIComponent(checkout)}` : `&checkout`) +
+      `&guests=${encodeURIComponent(rentGuests)}` +
+      `&budget=${encodeURIComponent(rentBudget)}`;
+
+    router.push(`/search-for-real-estate?${qs}`);
+  };
+
+  // ------------------------------------------------------------------
+  // HANDLE FOR SALE SEARCH
   // ------------------------------------------------------------------
   const handleRealEstateSearch = (e) => {
     e.preventDefault();
@@ -154,40 +287,82 @@ const Banner = () => {
       <div className="overlay"></div>
 
       <div className="banner-content">
-        
-        {/* LEFT FORM (Rentals) */}
+        {/* LEFT FORM (For Rent) */}
         <div className="form-box">
           <div className="form-title form-title-one">
             <p>For Rent</p>
           </div>
 
-          <form>
+          <form onSubmit={handleRentSearch}>
             <label>Property Type</label>
-            <select>
-              <option>Villa</option>
+            <select value={rentType} onChange={(e) => setRentType(e.target.value)}>
+              {propertyTypes.length > 0 ? (
+                propertyTypes.map((pt) => (
+                  <option key={pt.id} value={pt.id}>
+                    {pt.name}
+                  </option>
+                ))
+              ) : (
+                <option value="">Loading...</option>
+              )}
             </select>
-            <div class="date-row">
-           <div class="date-row">
-  <div class="date-field">
-    <label>Check-in Date</label>
-    <input type="date" value="2025-09-15" />
-  </div>
 
-  <div class="date-field">
-    <label>Check-out Date</label>
-    <input type="date" value="2025-09-15" />
-  </div>
-</div>
+            <div className="date-row">
+              <div className="date-field">
+                <label>Check-in Date</label>
+                <input
+                  type="date"
+                  value={checkin}
+                  onChange={(e) => setCheckin(e.target.value)}
+                />
+              </div>
+
+              <div className="date-field">
+                <label>Check-out Date</label>
+                <input
+                  type="date"
+                  value={checkout}
+                  onChange={(e) => setCheckout(e.target.value)}
+                />
+              </div>
             </div>
 
             <label>Number Of Guests</label>
-            <select>
-              <option>5</option>
+            <select
+              value={rentGuests}
+              onChange={(e) => setRentGuests(e.target.value)}
+            >
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
             </select>
 
             <label>Budget</label>
-            <select>
-              <option>฿17,500 - ฿90,500</option>
+            <select value={rentBudget} onChange={(e) => setRentBudget(e.target.value)}>
+              {rentBudgets.length > 0 ? (
+                rentBudgets.map((b, idx) => {
+                  const val = `${b.min}-${b.max}`;
+                  const minLabel = Number.isFinite(Number(b.min))
+                    ? Number(b.min).toLocaleString()
+                    : b.min;
+                  const maxLabel = Number.isFinite(Number(b.max))
+                    ? Number(b.max).toLocaleString()
+                    : b.max;
+
+                  return (
+                    <option key={idx} value={val}>
+                      ฿{minLabel} - ฿{maxLabel}
+                    </option>
+                  );
+                })
+              ) : (
+                <option value="">Loading...</option>
+              )}
             </select>
 
             <button type="submit">Search</button>
@@ -214,15 +389,13 @@ const Banner = () => {
           )}
         </div>
 
-        {/* RIGHT FORM (Real Estate) */}
+        {/* RIGHT FORM (For Sale) */}
         <div className="form-box">
           <div className="form-title form-title-two">
             <p>For Sale</p>
           </div>
 
           <form onSubmit={handleRealEstateSearch}>
-            
-            {/* 🔥 DYNAMIC PROPERTY TYPES */}
             <label>Property Type</label>
             <select value={type} onChange={(e) => setType(e.target.value)}>
               {propertyTypes.length > 0 ? (
@@ -232,13 +405,15 @@ const Banner = () => {
                   </option>
                 ))
               ) : (
-                <option>Loading...</option>
+                <option value="">Loading...</option>
               )}
             </select>
 
-            {/* 🔥 DYNAMIC LOCATIONS */}
             <label>Location</label>
-            <select value={locationId} onChange={(e) => setLocationId(e.target.value)}>
+            <select
+              value={locationId}
+              onChange={(e) => setLocationId(e.target.value)}
+            >
               {locations.length > 0 ? (
                 locations.map((loc) => (
                   <option key={loc.id} value={loc.id}>
@@ -246,21 +421,44 @@ const Banner = () => {
                   </option>
                 ))
               ) : (
-                <option>Loading...</option>
+                <option value="">Loading...</option>
               )}
             </select>
 
             <label>Land Size</label>
             <select value={landSize} onChange={(e) => setLandSize(e.target.value)}>
-              <option value="1200">1200 M² Area</option>
-              <option value="800">800 M² Area</option>
-              <option value="500">500 M² Area</option>
+              {landSizes.length > 0 ? (
+                landSizes.map((s, idx) => (
+                  <option key={idx} value={String(s)}>
+                    {s} M² Area
+                  </option>
+                ))
+              ) : (
+                <option value="">Loading...</option>
+              )}
             </select>
 
             <label>Budget</label>
             <select value={budget} onChange={(e) => setBudget(e.target.value)}>
-              <option value="156000-2900000">฿1,56,000 - ฿2,900,000</option>
-              <option value="300000-5000000">฿3,00,000 - ฿50,00,000</option>
+              {saleBudgets.length > 0 ? (
+                saleBudgets.map((b, idx) => {
+                  const val = `${b.min}-${b.max}`;
+                  const minLabel = Number.isFinite(Number(b.min))
+                    ? Number(b.min).toLocaleString()
+                    : b.min;
+                  const maxLabel = Number.isFinite(Number(b.max))
+                    ? Number(b.max).toLocaleString()
+                    : b.max;
+
+                  return (
+                    <option key={idx} value={val}>
+                      ฿{minLabel} - ฿{maxLabel}
+                    </option>
+                  );
+                })
+              ) : (
+                <option value="">Loading...</option>
+              )}
             </select>
 
             <button type="submit">Search</button>
